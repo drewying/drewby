@@ -1,0 +1,34 @@
+class DrewbyParser
+
+  prechigh
+    nonassoc UMINUS
+    left MULTIPLY DIVIDE PLUS MINUS MODULO EQUAL NOTEQUAL GREATERTHAN LESSERTHAN
+  preclow
+  options result_var
+  
+rule
+  target      : statementList { result = AST::ASTNode.new({sub_statements:val[0]}) }
+
+  statement   : VARIABLE ASSIGN expression { result = AST::AssignVariableStatement.new({variable_name:val[0], expression:val[2]}) }
+              | PRINT expression { result = AST::PrintStatement.new({expression:val[1]}) } 
+              | PRINT STRING { result = AST::PrintStringStatement.new({text:val[1]}) } 
+              | IF LPAREN expression RPAREN LBRACKET statementList RBRACKET { result = AST::IfStatement.new({expression:val[2], statements:val[5]}) }
+              | WHILE LPAREN expression RPAREN LBRACKET statementList RBRACKET { result = AST::WhileStatement.new({expression:val[2], statements:val[5]}) }
+  
+  statementList : statementList statement SEMICOLON { result = val[0] << val[1] }
+                | { result = [] }
+
+  expression  : expression GREATERTHAN expression { result = AST::GreaterThanExpression.new({left_expression:val[0], right_expression:val[2]}) }
+              | expression LESSERTHAN expression { result = AST::LesserThanExpression.new({left_expression:val[0], right_expression:val[2]}) }
+              | expression EQUAL expression   { result = AST::EqualExpression.new({left_expression:val[0], right_expression:val[2]}) }
+              | expression NOTEQUAL expression { result = AST::NotEqualExpression.new({left_expression:val[0], right_expression:val[2]}) }
+              | expression PLUS expression { result = AST::AddExpression.new({left_expression:val[0], right_expression:val[2]}) }
+              | expression MINUS expression { result = AST::SubtractExpression.new({left_expression:val[0], right_expression:val[2]}) }
+              | expression MULTIPLY expression { result = AST::MultiplyExpression.new({left_expression:val[0], right_expression:val[2]}) }
+              | expression DIVIDE expression { result = AST::DivideExpression.new({left_expression:val[0], right_expression:val[2]}) }
+              | expression MODULO expression { result = AST::ModuloExpression.new({left_expression:val[0], right_expression:val[2]}) }
+              | LPAREN expression RPAREN { result = val[1] }
+              | NUMBER { result = AST::LoadConstantExpression.new({value:val[0]}) }
+              | VARIABLE { result = AST::LoadVariableExpression.new({variable_name:val[0]}) }
+
+end

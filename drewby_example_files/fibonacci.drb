@@ -1,0 +1,12 @@
+a = 1;
+b = 0;
+tmp = 0;
+count = 0;
+
+while (count < 20) {
+	tmp = a; 
+	a = a + b; 
+   	b = tmp;
+    print tmp;
+    count = count + 1;
+};
